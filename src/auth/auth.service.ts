@@ -72,6 +72,7 @@ export class AuthService {
             user = await this.userRepository.save(user);
         }
 
+        // 엑세스 토큰 만료, 리프레시 토큰 발급 및 저장 로직은 이번코딩에선 생략
         return {
             accessToken: this.jwtService.sign({
                 sub: user.id,
