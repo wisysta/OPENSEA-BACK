@@ -5,8 +5,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { AuthRequest, User } from './entities';
+import { Nft } from './entities/Nft';
+import { NftProperty } from './entities/NftProperty';
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
+import { MintingController } from './minting/minting.controller';
+import { MintingService } from './minting/minting.service';
 
 @Module({
     imports: [
@@ -20,15 +24,15 @@ import { UserService } from './user/user.service';
                 username: configService.get('DB_USERNAME'),
                 password: configService.get('DB_PASSWORD'),
                 database: configService.get('DB_DBNAME'),
-                entities: [AuthRequest, User],
+                entities: [AuthRequest, User, Nft, NftProperty],
                 // 프로덕션환경에서 실행 x
                 synchronize: true,
             }),
         }),
-        TypeOrmModule.forFeature([User]),
+        TypeOrmModule.forFeature([User, Nft, NftProperty]),
         AuthModule,
     ],
-    controllers: [AppController, UserController],
-    providers: [AppService, UserService],
+    controllers: [AppController, UserController, MintingController],
+    providers: [AppService, UserService, MintingService],
 })
 export class AppModule {}
