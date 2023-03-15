@@ -15,33 +15,23 @@ import { NftController } from './nft/nft.controller';
 import { NftService } from './nft/nft.service';
 import { HttpModule } from '@nestjs/axios';
 import { BullModule } from '@nestjs/bull';
+import { NftConsumer } from './nft/nft.consumer';
 
 @Module({
     imports: [
         HttpModule,
         ConfigModule.forRoot(),
-        // BullModule.forRootAsync({
-        //     imports: [ConfigModule],
-        //     inject: [ConfigService],
-        //     useFactory: (configservice: ConfigService) => ({
-        //         redis: {
-        //             host: configservice.get('REDIS_HOST'),
-        //             port: configservice.get('REDIS_PORT'),
-        //         },
-        //     }),
-        // }),
-        BullModule.forRoot({
-            redis: {
-                host: 'localhost',
-                port: 6379,
-            },
+        BullModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (configservice: ConfigService) => ({
+                redis: {
+                    host: configservice.get('REDIS_HOST'),
+                },
+            }),
         }),
         BullModule.registerQueue({
             name: 'nft',
-            redis: {
-                host: 'localhost',
-                port: 6379,
-            },
         }),
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule, AuthModule],
@@ -60,12 +50,13 @@ import { BullModule } from '@nestjs/bull';
         TypeOrmModule.forFeature([User, Nft, NftProperty, NftContract]),
         AuthModule,
     ],
-    controllers: [
-        AppController,
-        UserController,
-        MintingController,
-        NftController,
+    controllers: [UserController, MintingController, NftController],
+    providers: [
+        AppService,
+        UserService,
+        MintingService,
+        NftService,
+        NftConsumer,
     ],
-    providers: [AppService, UserService, MintingService, NftService],
 })
 export class AppModule {}
