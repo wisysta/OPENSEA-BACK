@@ -41,7 +41,7 @@ export class MintingService {
         const lastToken = await this.nftRepository.findOne({
             where: {
                 creatorAddress: address,
-                contracAddress: this.lazyMintingContract,
+                contractAddress: this.lazyMintingContract,
             },
             order: { tokenId: 'desc' },
         });
@@ -51,11 +51,10 @@ export class MintingService {
         if (lastToken) {
             tokenIndex = parseInt(lastToken.tokenId.slice(40), 16) + 1;
         }
-        console.log(tokenIndex);
 
         const newToken = new Nft();
         newToken.creatorAddress = address;
-        newToken.contracAddress = this.lazyMintingContract;
+        newToken.contractAddress = this.lazyMintingContract;
         newToken.name = name;
         newToken.description = description;
         newToken.image = image;

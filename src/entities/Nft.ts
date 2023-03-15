@@ -1,16 +1,16 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { NftProperty } from './NftProperty';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Nft {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ nullable: true })
     creatorAddress: string;
 
     @Column()
-    contracAddress: string;
+    contractAddress: string;
 
     @Column()
     tokenId: string;
@@ -18,15 +18,17 @@ export class Nft {
     @Column()
     isLazy: boolean;
 
-    @Column()
+    @Column({ nullable: true })
     name: string;
 
-    @Column()
+    @Column({ nullable: true })
     description: string;
 
-    @Column()
+    @Column({ nullable: true })
     image: string;
 
-    @OneToMany((type) => NftProperty, (nftProperty) => nftProperty.nft)
+    @OneToMany((type) => NftProperty, (nftProperty) => nftProperty.nft, {
+        cascade: ['insert', 'update'],
+    })
     properties: NftProperty[];
 }
