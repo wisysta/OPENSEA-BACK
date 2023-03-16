@@ -27,6 +27,8 @@ import { NftConsumer } from './nft/nft.consumer';
             useFactory: (configservice: ConfigService) => ({
                 redis: {
                     host: configservice.get('REDIS_HOST'),
+                    port: configservice.get('REDIS_PORT'),
+                    password: configservice.get('REDIS_PASSWORD'),
                 },
             }),
         }),

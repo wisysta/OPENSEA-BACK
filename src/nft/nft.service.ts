@@ -88,4 +88,73 @@ export class NftService {
             }),
         );
     }
+
+    getNfts(contractAddress: string, startToken?: string) {
+        return this.getNftContract(contractAddress).pipe(
+            mergeMap((contract) => {
+                if (contract.synced) {
+                    return this.getNftsFromDB(contractAddress, startToken);
+                } else {
+                    return this.getNftsFromAlchemy(contractAddress, startToken);
+                }
+            }),
+        );
+    }
+
+    getNftsFromDB(contractAddress: string, startToken?: string) {
+        return from(
+            this.nftRepository.find({
+                where: {
+                    tokenId: MoreThanOrEqual(startToken || '0'),
+                    contractAddress,
+                },
+                order: {
+                    tokenId: 'asc',
+                },
+                take: 100,
+            }),
+        ).pipe(
+            map((nfts) =>
+                nfts.map((nft) => ({
+                    tokenId: nft.tokenId,
+                    name: nft.name,
+                    description: nft.description,
+                    image: nft.image,
+                })),
+            ),
+        );
+    }
+
+    getNftsFromAlchemy(contractAddress: string, startToken?: string) {
+        return this.httpService
+            .get(`/nft/v2/${this.alchemyApiKey}/getNFTsForCollection`, {
+                baseURL: this.alchemyEndpoint,
+                params: {
+                    contractAddress,
+                    withMetadata: true,
+                    startToken,
+                },
+            })
+            .pipe(
+                map((result) => {
+                    return result.data.nfts.map((nft) => ({
+                        tokenId: nft.id.tokenId,
+                        name: nft.title,
+                        description: nft.description,
+                        image: nft.media[0]?.gateway,
+                    }));
+                }),
+            );
+    }
+
+    getNextToken(result) {
+        return result.length > 0
+            ? ethers.utils.hexZeroPad(
+                  BigNumber.from(result[result.length - 1].tokenId)
+                      .add(1)
+                      .toHexString(),
+                  32,
+              )
+            : null;
+    }
 }

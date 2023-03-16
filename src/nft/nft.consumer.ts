@@ -28,7 +28,6 @@ export class NftConsumer {
 
     @Process('nft-token-load')
     async loadTokenList(job: Job) {
-        this.logger.log('000000');
         const contract = await this.nftContractRepository.findOne({
             where: { contractAddress: job.data.contractAddress },
         });
