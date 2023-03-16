@@ -157,4 +157,70 @@ export class NftService {
               )
             : null;
     }
+
+    getNftMetadta(contractAddress: string, tokenId: string) {
+        return this.httpService
+            .get(`/nft/v2/${this.alchemyApiKey}/getNFTMetadata`, {
+                baseURL: this.alchemyEndpoint,
+                params: {
+                    contractAddress,
+                    tokenId,
+                },
+            })
+            .pipe(map((result) => result.data));
+    }
+
+    getOwnersForToken(contractAddress: string, tokenId: string) {
+        return this.httpService
+            .get(`/nft/v2/${this.alchemyApiKey}/getOwnersForToken`, {
+                baseURL: this.alchemyEndpoint,
+                params: {
+                    contractAddress,
+                    tokenId,
+                },
+            })
+            .pipe(map((result) => result.data));
+    }
+
+    getNft(contractAddress: string, tokenId: string) {
+        return zip(
+            this.getNftMetadta(contractAddress, tokenId),
+            this.getOwnersForToken(contractAddress, tokenId),
+        ).pipe(
+            map(([nftMetadata, ownersForToken]) => {
+                return {
+                    ...nftMetadata,
+                    ...ownersForToken,
+                };
+            }),
+        );
+    }
+
+    getRecentHistory(contractAddress: string) {
+        return this.httpService
+            .post(
+                `/v2/${this.alchemyApiKey}`,
+                {
+                    id: 1,
+                    jsonrpc: '2.0',
+                    method: 'alchemy_getAssetTransfers',
+                    params: [
+                        {
+                            fromBlock: '0x0',
+                            toBlock: 'latest',
+                            category: ['ERC721'],
+                            contractAddresses: [contractAddress],
+                            withMetadata: false,
+                            // 최대 1000개까지 호출 가능
+                            maxCount: '0x3e8',
+                            order: 'desc',
+                        },
+                    ],
+                },
+                {
+                    baseURL: this.alchemyEndpoint,
+                },
+            )
+            .pipe(map((result) => result.data?.result?.transfers || []));
+    }
 }

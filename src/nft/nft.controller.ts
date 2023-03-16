@@ -25,4 +25,28 @@ export class NftController {
             })),
         );
     }
+
+    @Get('/contract/:address/tokens/:tokenId')
+    async getOneNft(@Param() param) {
+        const { address, tokenId } = param;
+
+        return this.nftService.getNft(address, tokenId);
+    }
+
+    @Get('/contract/:address/tokens/:tokenId/history')
+    async getNftHistory(@Param() param) {
+        const { address, tokenId } = param;
+
+        return this.nftService.getRecentHistory(address).pipe(
+            map((history) => {
+                return history
+                    .filter((event) =>
+                        BigNumber.from(event.erc721TokenId).eq(
+                            BigNumber.from(tokenId),
+                        ),
+                    )
+                    .slice(0, 3);
+            }),
+        );
+    }
 }
