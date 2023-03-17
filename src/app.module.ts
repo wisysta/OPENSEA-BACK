@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { AuthRequest, NftContract, User } from './entities';
+import { AuthRequest, NftContract, Order, User } from './entities';
 import { Nft } from './entities/Nft';
 import { NftProperty } from './entities/NftProperty';
 import { UserController } from './user/user.controller';
@@ -16,6 +16,8 @@ import { NftService } from './nft/nft.service';
 import { HttpModule } from '@nestjs/axios';
 import { BullModule } from '@nestjs/bull';
 import { NftConsumer } from './nft/nft.consumer';
+import { OrderController } from './order/order.controller';
+import { OrderService } from './order/order.service';
 
 @Module({
     imports: [
@@ -44,21 +46,34 @@ import { NftConsumer } from './nft/nft.consumer';
                 username: configService.get('DB_USERNAME'),
                 password: configService.get('DB_PASSWORD'),
                 database: configService.get('DB_DBNAME'),
-                entities: [AuthRequest, User, Nft, NftProperty, NftContract],
+                entities: [
+                    AuthRequest,
+                    User,
+                    Nft,
+                    NftProperty,
+                    NftContract,
+                    Order,
+                ],
                 // 프로덕션환경에서 실행 x
                 synchronize: true,
             }),
         }),
-        TypeOrmModule.forFeature([User, Nft, NftProperty, NftContract]),
+        TypeOrmModule.forFeature([User, Nft, NftProperty, NftContract, Order]),
         AuthModule,
     ],
-    controllers: [UserController, MintingController, NftController],
+    controllers: [
+        UserController,
+        MintingController,
+        NftController,
+        OrderController,
+    ],
     providers: [
         AppService,
         UserService,
         MintingService,
         NftService,
         NftConsumer,
+        OrderService,
     ],
 })
 export class AppModule {}
