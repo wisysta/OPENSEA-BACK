@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { BigNumber, ethers } from 'ethers';
 import {
-    // erc20Abi,
+    erc20Abi,
     erc721Abi,
     exchangeAbi,
     proxyRegistryAbi,
@@ -295,23 +295,23 @@ export class OrderService {
                 return false;
             }
         } else {
-            // offer 주문에 대한 검증
-            // const erc20Contract = new ethers.Contract(
-            //     solidityOrder.paymentToken,
-            //     erc20Abi,
-            //     this.provider,
-            // );
-            // const allowance = await erc20Contract.allowance(
-            //     dbOrder.maker,
-            //     this.exchangeAddress,
-            // );
-            // const balance = await erc20Contract.balanceOf(dbOrder.maker);
-            // if (BigNumber.from(allowance).lt(BigNumber.from(dbOrder.price))) {
-            //     return false;
-            // }
-            // if (BigNumber.from(balance).lt(BigNumber.from(dbOrder.price))) {
-            //     return false;
-            // }
+            //offer 주문에 대한 검증
+            const erc20Contract = new ethers.Contract(
+                solidityOrder.paymentToken,
+                erc20Abi,
+                this.provider,
+            );
+            const allowance = await erc20Contract.allowance(
+                dbOrder.maker,
+                this.exchangeAddress,
+            );
+            const balance = await erc20Contract.balanceOf(dbOrder.maker);
+            if (BigNumber.from(allowance).lt(BigNumber.from(dbOrder.price))) {
+                return false;
+            }
+            if (BigNumber.from(balance).lt(BigNumber.from(dbOrder.price))) {
+                return false;
+            }
         }
 
         try {
